@@ -1,3 +1,10 @@
+import pygame
+
+POS_COORD = (0, 0)
+POS_FONDO = (0, 0)
+GRAVEDAD = 1
+
+###
 
 ANCHO_VENTANA = 800
 ALTO_VENTANA = 600
@@ -27,5 +34,3 @@ JUGANDO = 0
 
 ###
 
-POS_COORD = (0, 0)
-POS_FONDO = (0, 0)
