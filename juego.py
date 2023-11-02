@@ -27,6 +27,8 @@ texto_coordenadas = fuente.render("", True, COLORES.WHITE)
 # VARIABLES DE JUEGO
 
 GRAVEDAD = GRAVEDAD
+CD_FLECHAS = 100
+coordenadas_click = [0, 0]
 
 # VARIABLES DE JUGADOR
 
@@ -60,10 +62,11 @@ estructuras = pygame.transform.scale_by(estructuras, 1)
 timer = pygame.USEREVENT
 pygame.time.set_timer(timer, 130)
 
-fantasma = Fantasma(200, 200, 2, 5, fuente)
+fantasma = Fantasma(580, 420, 2, 5, fuente)
 jugador = Jugador(215, 425, 1.6, 5, fuente)
 
 debug_mode = False
+mouse_up = True
 
 
 while on:
@@ -78,11 +81,24 @@ while on:
         if evento.type == pygame.QUIT:
             on = False
         
-        # mouse
+        # mouse click
         elif evento.type == pygame.MOUSEBUTTONDOWN:
-            coordenadas_click = list(evento.pos)
-            texto_coordenadas = fuente.render(str(coordenadas_click), True, COLORES.WHITE)
-            print(coordenadas_click)
+            
+            if evento.button == 1:
+
+                coordenadas_click = list(evento.pos)
+                texto_coordenadas = fuente.render(str(coordenadas_click), True, COLORES.WHITE)
+                print(coordenadas_click)
+
+                mouse_up = False
+                ataque = True
+                atacando = True
+        
+        # mouse up
+        elif evento.type == pygame.MOUSEBUTTONUP:
+            if evento.button == 1:
+                mouse_up = True
+
 
         # presion tecla
         elif evento.type == pygame.KEYDOWN:
@@ -94,8 +110,7 @@ while on:
                 movimiento_der = True
             if evento.key == pygame.K_w and jugador.vivo:
                 jugador.salto = True
-            if evento.key == pygame.K_SPACE:
-                ataque = True
+            
             # modo debug con P
             if evento.key == pygame.K_p:
                 if debug_mode is False:
@@ -109,8 +124,7 @@ while on:
                 movimiento_izq = False
             if evento.key == pygame.K_d:
                 movimiento_der = False
-            if evento.key == pygame.K_SPACE:
-                ataque = False
+            
         
         # eventos de usuario
         elif evento.type == pygame.USEREVENT:
@@ -127,23 +141,30 @@ while on:
     jugador.actualizar_animacion()
     
     jugador.moverse(movimiento_izq, movimiento_der)
-    
-    
+
+    if mouse_up and jugador.accion == 3 and not atacando:
+        ataque = False
+
+        
     #actualizar acciones
     if jugador.vivo: 
         if ataque:
             jugador.actualizar_accion(3) # 3: ataque
             if jugador.accion_completa:
-                flecha = Flecha((jugador.rect.centerx + (35 * jugador.direccion)), (jugador.rect.centery + 7), jugador.direccion, flecha_imagen, jugador.flip)
+                flecha = Flecha((jugador.rect.centerx + (35 * jugador.direccion)), (jugador.rect.centery + 7), jugador.direccion, flecha_imagen, jugador.flip, coordenadas_click)
                 grupo_flechas.add(flecha)
+                jugador.accion_completa = False
+                atacando = False
 
         if jugador.en_aire:
             jugador.actualizar_accion(2) # 2: saltar
             if ataque:
-                jugador.actualizar_accion(3)
+                jugador.actualizar_accion(3) # 3: ataque
                 if jugador.accion_completa:
-                    flecha = Flecha((jugador.rect.centerx + (35 * jugador.direccion)), (jugador.rect.centery + 7), jugador.direccion, flecha_imagen)
+                    flecha = Flecha((jugador.rect.centerx + (35 * jugador.direccion)), (jugador.rect.centery + 7), jugador.direccion, flecha_imagen, jugador.flip, coordenadas_click)
                     grupo_flechas.add(flecha)
+                    jugador.accion_completa = False
+                    atacando = False
 
         elif movimiento_der or movimiento_izq:
            jugador.actualizar_accion(1) # 1: correr
@@ -157,13 +178,20 @@ while on:
         screen.blit(fuente.render(str(jugador.rect.y), True, COLORES.ALICEBLUE), (0, 60))
         screen.blit(fuente.render(str(jugador.rect.w), True, COLORES.ALICEBLUE), (0, 90))
         screen.blit(fuente.render(str(jugador.rect.h), True, COLORES.ALICEBLUE), (0, 120))
+
         pygame.draw.rect(screen, COLORES.AZURE1, fantasma.rect)
         fantasma.dibujar_hitbox(screen)
         pygame.draw.rect(screen, COLORES.AZURE1, jugador.rect)
         jugador.dibujar_hitbox(screen)
+        if grupo_flechas:
+            pygame.draw.rect(screen, COLORES.RED4, flecha.rect)
+            flecha.dibujar_hitbox(screen)
 
 
-    fantasma.dibujarse(screen)
+    if fantasma.vivo:
+        fantasma.dibujarse(screen)
+        if grupo_flechas:
+            fantasma.chequear_colisiones(flecha.rect)
 
     jugador.dibujarse(screen)
 

@@ -7,6 +7,7 @@ class Fantasma(pygame.sprite.Sprite):
         self.speed = speed
         self.direccion = 1 # 1 derecha -1 izquierda
         self.flip = False
+        self.vivo = True
 
         img = pygame.image.load(r"IMAGENES\PERSONAJES\FANTASMA\ghost-idle\0.png").convert_alpha()
         self.imagen = pygame.transform.scale_by(img, scale)
@@ -14,7 +15,10 @@ class Fantasma(pygame.sprite.Sprite):
         self.rect.center = (x, y)
         self.rect_valor = fuente.render(str(self.rect), True, COLORES.GRAY)
     
-    
+    def chequear_colisiones(self, flecha_rect):
+        if self.rect.colliderect(flecha_rect):
+            self.vivo = False
+        
         
     def dibujarse(self, screen):
         screen.blit(self.imagen, self.rect)
