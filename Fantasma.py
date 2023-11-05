@@ -19,7 +19,7 @@ class Fantasma(pygame.sprite.Sprite):
         self.accion = 0 # indice 0: aparecer 1: idle 2: ataque 3: morir
         self.accion_completa = False
         self.indice_fotograma = 0
-        self.lista_animaciones = cargar_imagenes("FANTASMA", ["aparecer", "idle", "ataque", "muerte"] , scale)
+        self.lista_animaciones = cargar_imagenes("IMAGENES\PERSONAJES\FANTASMA", ["aparecer", "idle", "ataque", "muerte"] , scale)
         self.imagen = self.lista_animaciones[self.accion][self.indice_fotograma]
         self.rect = self.imagen.get_rect()
         

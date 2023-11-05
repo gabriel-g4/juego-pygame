@@ -8,7 +8,7 @@ class Flecha(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.direccion = direccion
         self.velocidad = 10
-        self.tiempo_flecha = pygame.time.get_ticks()
+        
         self.image = flecha_imagen
         self.image = pygame.transform.flip(self.image, flip, False)
         self.rect = self.image.get_rect()
@@ -22,6 +22,7 @@ class Flecha(pygame.sprite.Sprite):
         # fijarse si salio de pantalla
         if self.rect.left > ANCHO_VENTANA or self.rect.right < 0:
             self.kill()
+    
         
         # chequear colisiones
         if pygame.sprite.spritecollide(enemigo, grupo_flechas, False):

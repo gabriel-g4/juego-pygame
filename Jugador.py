@@ -7,12 +7,13 @@ from CONSTANTES import *
 
 
 class Jugador(pygame.sprite.Sprite):
-    def __init__(self, x, y, scale, speed, fuente) -> None:
+    def __init__(self, x, y, scale, speed, fuente, cantidad_cuchillos) -> None:
         pygame.sprite.Sprite.__init__(self)
         self.vivo = True
         self.vida = 100
         self.vida_maxima = self.vida
 
+        self.cantidad_cuchillos = cantidad_cuchillos
         self.speed = speed
         self.velocidad_y = 0
         self.direccion = 1 # 1 derecha -1 izquierda
@@ -27,7 +28,7 @@ class Jugador(pygame.sprite.Sprite):
 
         #cargar imagenes
         lista_nombres_animaciones = ["idle", "walk", "salto", "ataque", "muerte"]
-        self.lista_animaciones = cargar_imagenes("DUENDA", lista_nombres_animaciones, scale)
+        self.lista_animaciones = cargar_imagenes("IMAGENES\PERSONAJES\DUENDA", lista_nombres_animaciones, scale)
         self.imagen = self.lista_animaciones[self.accion][self.indice_fotograma]
         self.rect = self.imagen.get_rect()
         self.rect.center = (x, y)

@@ -7,6 +7,7 @@ from CONSTANTES import *
 from Fantasma import Fantasma
 from Jugador import Jugador
 from Flecha import Flecha
+from Cuchillo import Cuchillo
 
 on = True
 
@@ -21,14 +22,14 @@ FPS = 60
 screen = pygame.display.set_mode([ANCHO_VENTANA, ALTO_VENTANA])
 pygame.display.set_caption("Mi primera chamba")
 
-# FUENTE
+# FUENTE Y TEXTOS
 fuente = pygame.font.SysFont("Arial", 20)
 texto_coordenadas = fuente.render("", True, COLORES.WHITE)
+
 
 # VARIABLES DE JUEGO
 
 GRAVEDAD = GRAVEDAD
-CD_FLECHAS = 100
 coordenadas_click = [0, 0]
 
 # VARIABLES DE JUGADOR
@@ -36,15 +37,22 @@ coordenadas_click = [0, 0]
 movimiento_izq = False
 movimiento_der = False
 ataque = False
+lanzar_cuchillo = False
+
+# grupos sprite
+
+grupo_flechas = pygame.sprite.Group()
+grupo_cuchillo = pygame.sprite.Group()
 
 # IMAGEN FLECHA: la cargo aca para que sea siempre la misma y no cargarla cada vez que se dispara.
 
 flecha_imagen = pygame.image.load(r"IMAGENES\PROPS\felcha.png").convert_alpha()
 flecha_imagen = pygame.transform.scale_by(flecha_imagen, 1.6)
 
-# grupos sprite
+# ICONOS
 
-grupo_flechas = pygame.sprite.Group()
+icono_cuchillo = pygame.image.load(r"IMAGENES\PROPS\cuchillo\2.png").convert_alpha()
+icono_cuchillo = pygame.transform.scale_by(icono_cuchillo, 2.5)
 
 #IMAGENES
 
@@ -55,20 +63,18 @@ for i in range (1,6):
     fondo = pygame.transform.scale_by(fondo , 2.3)
     lista_fondos.append(fondo)
 
-
-
-
 estructuras = pygame.image.load(r"IMAGENES\estructuras2.png").convert_alpha()
 estructuras = pygame.transform.scale_by(estructuras, 1)
 
 #Eventos usuario
 
 timer_15_segundos = pygame.USEREVENT
-pygame.time.set_timer(timer_15_segundos, 5000)
+pygame.time.set_timer(timer_15_segundos, 15000)
 
 fantasma = Fantasma(570, 410, 2, 5, fuente)
-jugador = Jugador(215, 425, 1.6, 5, fuente)
+jugador = Jugador(215, 425, 1.6, 5, fuente, 25)
 
+texto_cantidad_cuchillos = fuente.render(str(jugador.cantidad_cuchillos), True, COLORES.WHITE)
 debug_mode = False
 
 while on:
@@ -111,9 +117,13 @@ while on:
                 movimiento_der = True
             if evento.key == pygame.K_w and jugador.vivo:
                 jugador.salto = True
-            if evento.key == pygame.K_SPACE:
+            if evento.key == pygame.K_k:
                 ataque = True
-            
+            if evento.key == pygame.K_l:
+                lanzar_cuchillo = True
+
+
+
             # modo debug con P
             if evento.key == pygame.K_p:
                 if debug_mode is False:
@@ -127,6 +137,9 @@ while on:
                 movimiento_izq = False
             if evento.key == pygame.K_d:
                 movimiento_der = False
+
+            if evento.key == pygame.K_l:
+                lanzar_cuchillo = False
             
         
         # eventos de usuario
@@ -161,14 +174,20 @@ while on:
         fantasma.actualizar_accion(3)
 
         
-    #actualizar acciones
-    if jugador.vivo: 
+    #actualizar acciones . action handler
+    if jugador.vivo:
         if ataque:
             jugador.actualizar_accion(3) # 3: ataque
             if jugador.accion_completa:
                 flecha = Flecha((jugador.rect.centerx + (35 * jugador.direccion)), (jugador.rect.centery + 7), jugador.direccion, flecha_imagen, jugador.flip)
                 grupo_flechas.add(flecha) 
                 ataque = False
+        elif lanzar_cuchillo and jugador.cantidad_cuchillos > 0:
+            cuchillo = Cuchillo((jugador.rect.centerx + (35 * jugador.direccion)), (jugador.rect.centery + 7), jugador.direccion)
+            grupo_cuchillo.add(cuchillo)
+            lanzar_cuchillo = False
+            jugador.cantidad_cuchillos -= 1
+            texto_cantidad_cuchillos = fuente.render(str(jugador.cantidad_cuchillos), True, COLORES.WHITE)
                 
         if jugador.en_aire:
             jugador.actualizar_accion(2) # 2: saltar
@@ -178,6 +197,12 @@ while on:
                     flecha = Flecha((jugador.rect.centerx + (35 * jugador.direccion)), (jugador.rect.centery + 7), jugador.direccion, flecha_imagen, jugador.flip)
                     grupo_flechas.add(flecha)
                     ataque = False
+            elif lanzar_cuchillo and jugador.cantidad_cuchillos > 0:
+                cuchillo = Cuchillo((jugador.rect.centerx + (35 * jugador.direccion)), (jugador.rect.centery + 7), jugador.direccion)
+                grupo_cuchillo.add(cuchillo)
+                lanzar_cuchillo = False
+                jugador.cantidad_cuchillos -= 1
+                texto_cantidad_cuchillos = fuente.render(str(jugador.cantidad_cuchillos), True, COLORES.WHITE)
                     
 
         elif movimiento_der or movimiento_izq:
@@ -203,22 +228,26 @@ while on:
         if grupo_flechas:
             pygame.draw.rect(screen, COLORES.RED4, flecha.rect)
             flecha.dibujar_hitbox(screen)
-
+        if grupo_cuchillo:
+            pygame.draw.rect(screen, COLORES.RED4, cuchillo.rect)
+            cuchillo.dibujar_hitbox(screen)
+            print(f"{cuchillo.rect.bottom}")
 
     fantasma.dibujarse(screen)
     jugador.dibujarse(screen)
     
-    jugador.imagen.fill((255, 0, 0), special_flags=pygame.BLEND_RGB_MULT)
+    #jugador.imagen.fill((255, 0, 0), special_flags=pygame.BLEND_RGB_MULT)
     
-    
-    
-    #jugador_mascara = pygame.mask.from_surface(jugador.imagen)
-    #imagen_mascara = jugador_mascara.to_surface()
-
-    #screen.blit(imagen_mascara, (jugador.rect.x, jugador.rect.y))
 
     grupo_flechas.update(fantasma, grupo_flechas)
+    grupo_cuchillo.update(fantasma, grupo_cuchillo)
     grupo_flechas.draw(screen)
+    grupo_cuchillo.draw(screen)
+    
+
+    screen.blit(icono_cuchillo, (700, 10))
+    screen.blit(texto_cantidad_cuchillos, (740, 10))
+    
        
     pygame.display.flip()
 
