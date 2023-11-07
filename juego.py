@@ -1,11 +1,13 @@
 import pygame
 import os
 import COLORES
+import random
 from FUNCIONES import *
 from CONSTANTES import *
 from Fantasma import Fantasma
 from Jugador import Jugador
 from Flecha import Flecha
+from Cuchillo import Cuchillo
 
 on = True
 
@@ -20,14 +22,14 @@ FPS = 60
 screen = pygame.display.set_mode([ANCHO_VENTANA, ALTO_VENTANA])
 pygame.display.set_caption("Mi primera chamba")
 
-# FUENTE
+# FUENTE Y TEXTOS
 fuente = pygame.font.SysFont("Arial", 20)
 texto_coordenadas = fuente.render("", True, COLORES.WHITE)
+
 
 # VARIABLES DE JUEGO
 
 GRAVEDAD = GRAVEDAD
-CD_FLECHAS = 100
 coordenadas_click = [0, 0]
 
 # VARIABLES DE JUGADOR
@@ -35,15 +37,22 @@ coordenadas_click = [0, 0]
 movimiento_izq = False
 movimiento_der = False
 ataque = False
-
-# IMAGEN FLECHA: la cargo aca para que sea siempre la misma y no cargarla cada vez que se dispara.
-
-flecha_imagen = pygame.image.load(r"IMAGENES\PROPS\flecha.png").convert_alpha()
-flecha_imagen = pygame.transform.scale_by(flecha_imagen, 1.6)
+lanzar_cuchillo = False
 
 # grupos sprite
 
 grupo_flechas = pygame.sprite.Group()
+grupo_cuchillo = pygame.sprite.Group()
+
+# IMAGEN FLECHA: la cargo aca para que sea siempre la misma y no cargarla cada vez que se dispara.
+
+flecha_imagen = pygame.image.load(r"IMAGENES\PROPS\felcha.png").convert_alpha()
+flecha_imagen = pygame.transform.scale_by(flecha_imagen, 1.6)
+
+# ICONOS
+
+icono_cuchillo = pygame.image.load(r"IMAGENES\PROPS\cuchillo\2.png").convert_alpha()
+icono_cuchillo = pygame.transform.scale_by(icono_cuchillo, 2.5)
 
 #IMAGENES
 
@@ -59,15 +68,14 @@ estructuras = pygame.transform.scale_by(estructuras, 1)
 
 #Eventos usuario
 
-timer = pygame.USEREVENT
-pygame.time.set_timer(timer, 130)
+timer_15_segundos = pygame.USEREVENT
+pygame.time.set_timer(timer_15_segundos, 15000)
 
-fantasma = Fantasma(580, 420, 2, 5, fuente)
-jugador = Jugador(215, 425, 1.6, 5, fuente)
+fantasma = Fantasma(570, 410, 2, 5, fuente)
+jugador = Jugador(215, 425, 1.6, 5, fuente, 25)
 
+texto_cantidad_cuchillos = fuente.render(str(jugador.cantidad_cuchillos), True, COLORES.WHITE)
 debug_mode = False
-mouse_up = True
-
 
 while on:
 
@@ -90,27 +98,32 @@ while on:
                 texto_coordenadas = fuente.render(str(coordenadas_click), True, COLORES.WHITE)
                 print(coordenadas_click)
 
-                mouse_up = False
-                ataque = True
-                atacando = True
         
         # mouse up
         elif evento.type == pygame.MOUSEBUTTONUP:
             if evento.button == 1:
-                mouse_up = True
+                pass
 
 
         # presion tecla
         elif evento.type == pygame.KEYDOWN:
             if evento.key == pygame.K_ESCAPE:
                 on = False
+            
+            
             if evento.key == pygame.K_a:
                 movimiento_izq = True
             if evento.key == pygame.K_d:
                 movimiento_der = True
             if evento.key == pygame.K_w and jugador.vivo:
                 jugador.salto = True
-            
+            if evento.key == pygame.K_k:
+                ataque = True
+            if evento.key == pygame.K_l:
+                lanzar_cuchillo = True
+
+
+
             # modo debug con P
             if evento.key == pygame.K_p:
                 if debug_mode is False:
@@ -124,51 +137,77 @@ while on:
                 movimiento_izq = False
             if evento.key == pygame.K_d:
                 movimiento_der = False
+
+            if evento.key == pygame.K_l:
+                lanzar_cuchillo = False
             
         
         # eventos de usuario
         elif evento.type == pygame.USEREVENT:
-            pass
+            if evento.type == timer_15_segundos:
+                if fantasma.vivo is False:
+                    #fantasma = Fantasma(random.randint(300,700), random.randint(0,300), 2, 5 , fuente)
+                    pass
+                
+
 
     ##############PANTALLA############################
+    
     for fondo in lista_fondos:
         screen.blit(fondo, (0, 0))
 
     screen.blit(estructuras, (0,0))
     screen.blit(texto_coordenadas, POS_COORD)
     
-
-    jugador.actualizar_animacion()
+    fantasma.actualizar()
+    jugador.actualizar()
     
-    jugador.moverse(movimiento_izq, movimiento_der)
+    if jugador.vivo:
+        jugador.moverse(movimiento_izq, movimiento_der)
 
-    if mouse_up and jugador.accion == 3 and not atacando:
-        ataque = False
+
+
+    if fantasma.vivo:
+        if fantasma.accion_completa:
+            fantasma.actualizar_accion(1)
+    else:
+        fantasma.actualizar_accion(3)
 
         
-    #actualizar acciones
-    if jugador.vivo: 
+    #actualizar acciones . action handler
+    if jugador.vivo:
         if ataque:
             jugador.actualizar_accion(3) # 3: ataque
             if jugador.accion_completa:
-                flecha = Flecha((jugador.rect.centerx + (35 * jugador.direccion)), (jugador.rect.centery + 7), jugador.direccion, flecha_imagen, jugador.flip, coordenadas_click)
-                grupo_flechas.add(flecha)
-                jugador.accion_completa = False
-                atacando = False
-
+                flecha = Flecha((jugador.rect.centerx + (35 * jugador.direccion)), (jugador.rect.centery + 7), jugador.direccion, flecha_imagen, jugador.flip)
+                grupo_flechas.add(flecha) 
+                ataque = False
+        elif lanzar_cuchillo and jugador.cantidad_cuchillos > 0:
+            cuchillo = Cuchillo((jugador.rect.centerx + (35 * jugador.direccion)), (jugador.rect.centery + 7), jugador.direccion)
+            grupo_cuchillo.add(cuchillo)
+            lanzar_cuchillo = False
+            jugador.cantidad_cuchillos -= 1
+            texto_cantidad_cuchillos = fuente.render(str(jugador.cantidad_cuchillos), True, COLORES.WHITE)
+                
         if jugador.en_aire:
             jugador.actualizar_accion(2) # 2: saltar
             if ataque:
                 jugador.actualizar_accion(3) # 3: ataque
                 if jugador.accion_completa:
-                    flecha = Flecha((jugador.rect.centerx + (35 * jugador.direccion)), (jugador.rect.centery + 7), jugador.direccion, flecha_imagen, jugador.flip, coordenadas_click)
+                    flecha = Flecha((jugador.rect.centerx + (35 * jugador.direccion)), (jugador.rect.centery + 7), jugador.direccion, flecha_imagen, jugador.flip)
                     grupo_flechas.add(flecha)
-                    jugador.accion_completa = False
-                    atacando = False
+                    ataque = False
+            elif lanzar_cuchillo and jugador.cantidad_cuchillos > 0:
+                cuchillo = Cuchillo((jugador.rect.centerx + (35 * jugador.direccion)), (jugador.rect.centery + 7), jugador.direccion)
+                grupo_cuchillo.add(cuchillo)
+                lanzar_cuchillo = False
+                jugador.cantidad_cuchillos -= 1
+                texto_cantidad_cuchillos = fuente.render(str(jugador.cantidad_cuchillos), True, COLORES.WHITE)
+                    
 
         elif movimiento_der or movimiento_izq:
            jugador.actualizar_accion(1) # 1: correr
-        elif not ataque:
+        else:
             jugador.actualizar_accion(0) # 0: idle
 
 
@@ -179,6 +218,9 @@ while on:
         screen.blit(fuente.render(str(jugador.rect.w), True, COLORES.ALICEBLUE), (0, 90))
         screen.blit(fuente.render(str(jugador.rect.h), True, COLORES.ALICEBLUE), (0, 120))
 
+        #linea piso
+        pygame.draw.line(screen, COLORES.YELLOW1, (0, PISO),(ANCHO_VENTANA, PISO))
+
         pygame.draw.rect(screen, COLORES.AZURE1, fantasma.rect)
         fantasma.dibujar_hitbox(screen)
         pygame.draw.rect(screen, COLORES.AZURE1, jugador.rect)
@@ -186,17 +228,26 @@ while on:
         if grupo_flechas:
             pygame.draw.rect(screen, COLORES.RED4, flecha.rect)
             flecha.dibujar_hitbox(screen)
+        if grupo_cuchillo:
+            pygame.draw.rect(screen, COLORES.RED4, cuchillo.rect)
+            cuchillo.dibujar_hitbox(screen)
+            print(f"{cuchillo.rect.bottom}")
 
-
-    if fantasma.vivo:
-        fantasma.dibujarse(screen)
-        if grupo_flechas:
-            fantasma.chequear_colisiones(flecha.rect)
-
+    fantasma.dibujarse(screen)
     jugador.dibujarse(screen)
+    
+    #jugador.imagen.fill((255, 0, 0), special_flags=pygame.BLEND_RGB_MULT)
+    
 
-    grupo_flechas.update()
+    grupo_flechas.update(fantasma, grupo_flechas)
+    grupo_cuchillo.update(fantasma, grupo_cuchillo)
     grupo_flechas.draw(screen)
+    grupo_cuchillo.draw(screen)
+    
+
+    screen.blit(icono_cuchillo, (700, 10))
+    screen.blit(texto_cantidad_cuchillos, (740, 10))
+    
        
     pygame.display.flip()
 
