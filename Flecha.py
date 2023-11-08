@@ -8,6 +8,8 @@ class Flecha(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.direccion = direccion
         self.velocidad = 10
+
+        self.actualizar_tiempo = pygame.time.get_ticks()
         
         self.image = flecha_imagen
         self.image = pygame.transform.flip(self.image, flip, False)
@@ -15,7 +17,10 @@ class Flecha(pygame.sprite.Sprite):
         self.rect.center = (x , y)
         
 
-    def update(self, enemigo, grupo_flechas):
+    def update(self, enemigo_grupo , grupo_flechas):
+        FLECHA_CD = 500
+
+
         # mover flecha
         self.rect.x += (self.direccion * self.velocidad)
 
@@ -25,11 +30,13 @@ class Flecha(pygame.sprite.Sprite):
     
         
         # chequear colisiones
-        if pygame.sprite.spritecollide(enemigo, grupo_flechas, False):
-            if enemigo.vivo:
-                self.kill()
-                enemigo.vida -= 25
-                print(enemigo.vida)
+        for enemigo in enemigo_grupo:
+            if pygame.sprite.spritecollide(enemigo, grupo_flechas, False):
+                if enemigo.vivo:
+                    enemigo.vida -= 25
+                    print(enemigo.vida)
+                    self.kill()
+                    
 
         
 

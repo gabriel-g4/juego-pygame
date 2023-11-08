@@ -32,7 +32,7 @@ class Jugador(pygame.sprite.Sprite):
         self.imagen = self.lista_animaciones[self.accion][self.indice_fotograma]
         self.rect = self.imagen.get_rect()
         self.rect.center = (x, y)
-        self.rect_valor = fuente.render(str(self.rect), True, COLORES.GRAY)
+        self.rect_valor = fuente.render(str(self.rect), True, COLORES.RED1)
 
     
     def actualizar(self):

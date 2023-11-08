@@ -22,7 +22,7 @@ class Cuchillo(pygame.sprite.Sprite):
         self.rect.center = (x ,y)
 
 
-    def update(self, enemigo, grupo_cuchillos):
+    def update(self, grupo_enemigos, grupo_cuchillos):
         # mover cuchillo
         self.movimiento()
 
@@ -38,11 +38,12 @@ class Cuchillo(pygame.sprite.Sprite):
             self.kill()
         
         # chequear colisiones
-        if pygame.sprite.spritecollide(enemigo, grupo_cuchillos, False):
-            if enemigo.vivo:
-                self.kill()
-                enemigo.vida -= 25
-                print(enemigo.vida)
+        for enemigo in grupo_enemigos:
+            if pygame.sprite.spritecollide(enemigo, grupo_cuchillos, False):
+                if enemigo.vivo:
+                    self.kill()
+                    enemigo.vida -= 25
+                    print(enemigo.vida)
 
 
     def movimiento(self):
