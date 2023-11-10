@@ -10,7 +10,7 @@ class Jugador(pygame.sprite.Sprite):
     def __init__(self, x, y, scale, speed, fuente, cantidad_cuchillos) -> None:
         pygame.sprite.Sprite.__init__(self)
         self.vivo = True
-        self.vida = 100
+        self.vida = 3
         self.vida_maxima = self.vida
 
         self.cantidad_cuchillos = cantidad_cuchillos

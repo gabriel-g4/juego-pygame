@@ -75,7 +75,7 @@ class Hongo(pygame.sprite.Sprite):
             self.vivo = False
             self.actualizar_accion(3)
         
-    def dibujarse(self, screen):
+    def draw(self, screen):
         screen.blit(self.image, self.rect)
 
     def dibujar_hitbox(self, screen):

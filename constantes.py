@@ -4,6 +4,7 @@ POS_COORD = (0, 0)
 POS_FONDO = (0, 0)
 GRAVEDAD = 1
 PISO = 467
+TILE_SIZE = 64
 
 ###
 
