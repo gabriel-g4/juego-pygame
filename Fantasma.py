@@ -20,8 +20,8 @@ class Fantasma(pygame.sprite.Sprite):
         self.accion_completa = False
         self.indice_fotograma = 0
         self.lista_animaciones = cargar_imagenes("IMAGENES\PERSONAJES\FANTASMA", ["aparecer", "idle", "ataque", "muerte"] , scale)
-        self.imagen = self.lista_animaciones[self.accion][self.indice_fotograma]
-        self.rect = self.imagen.get_rect()
+        self.image = self.lista_animaciones[self.accion][self.indice_fotograma]
+        self.rect = self.image.get_rect()
         
         self.rect.center = (x, y)
         
@@ -39,8 +39,8 @@ class Fantasma(pygame.sprite.Sprite):
         #cooldown animacion
         ANIMACION_CD = 155
         #actualizar imagen
-        self.imagen = self.lista_animaciones[self.accion][self.indice_fotograma]
-        self.rect = self.imagen.get_rect()
+        self.image = self.lista_animaciones[self.accion][self.indice_fotograma]
+        self.rect = self.image.get_rect()
         self.rect.center = (self.x, self.y)
         #fijarse cuanto tiempo paso
         if pygame.time.get_ticks() - self.actualizar_tiempo > ANIMACION_CD:
@@ -52,7 +52,7 @@ class Fantasma(pygame.sprite.Sprite):
                 self.accion_completa = True
                 self.indice_fotograma = 0
             else:
-                self.indice_fotograma = len(self.lista_animaciones[self.accion]) - 2
+                self.kill()
             
     
     def actualizar_accion(self, nueva_accion):
@@ -73,8 +73,8 @@ class Fantasma(pygame.sprite.Sprite):
             self.vivo = False
             self.actualizar_accion(3)
         
-    def dibujarse(self, screen):
-        screen.blit(self.imagen, self.rect)
+    def draw(self, screen):
+        screen.blit(self.image, self.rect)
 
     def dibujar_hitbox(self, screen):
         pygame.draw.line(screen, COLORES.RED1, self.rect.topleft, self.rect.topright)

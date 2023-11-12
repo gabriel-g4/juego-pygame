@@ -22,7 +22,7 @@ class Cuchillo(pygame.sprite.Sprite):
         self.rect.center = (x ,y)
 
 
-    def update(self, enemigo, grupo_cuchillos):
+    def update(self, grupo_enemigos, grupo_cuchillos, mundo):
         # mover cuchillo
         self.movimiento()
 
@@ -34,15 +34,19 @@ class Cuchillo(pygame.sprite.Sprite):
             self.kill()
         
         # fijarse si toco el suelo
-        if self.rect.bottom >= PISO:
-            self.kill()
-        
-        # chequear colisiones
-        if pygame.sprite.spritecollide(enemigo, grupo_cuchillos, False):
-            if enemigo.vivo:
+        for tile in mundo.lista_obstaculos:
+            if tile[1].colliderect(self.rect):
                 self.kill()
-                enemigo.vida -= 25
-                print(enemigo.vida)
+            if tile[1].colliderect(self.rect):
+                self.kill()
+
+        # chequear colisiones
+        for enemigo in grupo_enemigos:
+            if pygame.sprite.spritecollide(enemigo, grupo_cuchillos, False):
+                if enemigo.vivo:
+                    self.kill()
+                    enemigo.vida -= 25
+                    print(enemigo.vida)
 
 
     def movimiento(self):

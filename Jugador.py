@@ -10,7 +10,7 @@ class Jugador(pygame.sprite.Sprite):
     def __init__(self, x, y, scale, speed, fuente, cantidad_cuchillos) -> None:
         pygame.sprite.Sprite.__init__(self)
         self.vivo = True
-        self.vida = 100
+        self.vida = 30
         self.vida_maxima = self.vida
 
         self.cantidad_cuchillos = cantidad_cuchillos
@@ -31,8 +31,11 @@ class Jugador(pygame.sprite.Sprite):
         self.lista_animaciones = cargar_imagenes("IMAGENES\PERSONAJES\DUENDA", lista_nombres_animaciones, scale)
         self.imagen = self.lista_animaciones[self.accion][self.indice_fotograma]
         self.rect = self.imagen.get_rect()
+
+        self.rect.w = self.rect.w  - 15
+        self.rect.h = self.rect.h - 10
         self.rect.center = (x, y)
-        self.rect_valor = fuente.render(str(self.rect), True, COLORES.GRAY)
+        self.rect_valor = fuente.render(str(self.rect), True, COLORES.RED1)
 
     
     def actualizar(self):
@@ -41,7 +44,7 @@ class Jugador(pygame.sprite.Sprite):
         self.chequear_vida()
         
 
-    def moverse(self, movimiento_izq: bool, movimiento_der: bool):
+    def moverse(self, movimiento_izq: bool, movimiento_der: bool, mundo):
         #reseteo  variables de movimiento
         dx = 0
         dy = 0
@@ -58,7 +61,7 @@ class Jugador(pygame.sprite.Sprite):
         
         #salto
         if self.salto == True and self.en_aire == False:
-            self.velocidad_y = -16
+            self.velocidad_y = -17 # - 16
             self.salto = False
             self.en_aire = True
 
@@ -69,11 +72,20 @@ class Jugador(pygame.sprite.Sprite):
 
         dy += self.velocidad_y
 
-        #colisoin con piso
-        
-        if self.rect.bottom + dy > PISO:
-            dy = PISO - self.rect.bottom
-            self.en_aire = False
+        #colision con los tiles en x e y
+
+        for tile in mundo.lista_obstaculos:
+            if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.rect.w, self.rect.h):
+                dx = 0
+            if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.rect.w, self.rect.h):
+                if self.velocidad_y < 0: # saltando
+                    self.velocidad_y = 0
+                    dy = tile[1].bottom - self.rect.top
+                
+                elif self.velocidad_y >= 0:
+                    self.velocidad_y = 0
+                    self.en_aire = False
+                    dy = tile[1].top - self.rect.bottom
 
         #mover rectangulo
         self.rect.x += dx
@@ -118,7 +130,7 @@ class Jugador(pygame.sprite.Sprite):
 
     def dibujarse(self, screen):
         '''Blitea el personaje en pantalla en su rect.'''
-        screen.blit(pygame.transform.flip(self.imagen, self.flip, False), (self.rect.x + 7, self.rect.y, self.rect.w, self.rect.h))
+        screen.blit(pygame.transform.flip(self.imagen, self.flip, False), (self.rect.x , self.rect.y, self.rect.w, self.rect.h))
     
     def dibujar_hitbox(self, screen):
         '''Blitea cuatro lineas separadoras que hacen de hitbox'''

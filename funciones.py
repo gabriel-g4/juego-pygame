@@ -1,14 +1,18 @@
 import pygame
+import os
 
+def cargar_imagenes(path_parcial: str, lista_nombre_animaciones: list, scale: int)-> list:
 
-def cargar_sprites(path_parcial: str, rango: int, scale = 1) -> list:
+    lista_animaciones = []
 
-    lista = []
+    for animacion in lista_nombre_animaciones:
+        lista_temporal = []
+        numero_frames = len(os.listdir(f"{path_parcial}\{animacion}"))
+        for i in range(numero_frames):
+            img = pygame.image.load(f"{path_parcial}\{animacion}\{i}.png").convert_alpha()
+            img = pygame.transform.scale_by(img, scale)
+            lista_temporal.append(img)
+        lista_animaciones.append(lista_temporal)
 
-    for i in range(rango):
-        path = (path_parcial) + str(i) + ".png"
-        imagen = pygame.image.load(path)
-        imagen = pygame.transform.scale_by(imagen, scale)
-        lista.append(imagen)
+    return lista_animaciones     
     
-    return lista
