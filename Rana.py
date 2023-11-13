@@ -20,6 +20,7 @@ class Rana(pygame.sprite.Sprite):
         self.velocidad_y = 0
         self.speed = speed
         self.contador_movimiento = 0
+        self.contador_daño = 0
         self.idle = False
         self.idle_contador = 0
         self.direccion = 1 # 1 derecha -1 izquierda
@@ -35,7 +36,6 @@ class Rana(pygame.sprite.Sprite):
         self.lista_animaciones = cargar_imagenes("IMAGENES\PERSONAJES\RANA", ["idle", "walk", "daño","ataque","ataque lanzar", "muerte"] , scale)
         self.image = self.lista_animaciones[self.accion][self.indice_fotograma]
         self.rect = self.image.get_rect()
-        
         self.rect.center = (x, y)
         self.rect_valor = fuente.render(str(self.rect), True, COLORES.GRAY)
 
@@ -50,6 +50,7 @@ class Rana(pygame.sprite.Sprite):
         '''Metodo que llama a otros metodos que necesitan ser actualizados.'''
         self.actualizar_animacion()
         self.chequear_vida()
+        self.colision_jugador()
         if self.accion == 4 and self.accion_completa:
             proyectil = Proyectil(self.rect.centerx + ((10) * self.direccion), self.rect.centery, self.direccion, self.imagen_proyectil, self.flip)
             grupo_proyectiles.add(proyectil)
@@ -133,13 +134,20 @@ class Rana(pygame.sprite.Sprite):
                     self.rect_vision.center = (self.rect.centerx + 115 * self.direccion, self.rect.centery)
                     
 
-                    if self.contador_movimiento > 50:
+                    if self.contador_movimiento > 40:
                         self.direccion *= -1
                         self.contador_movimiento *= -1
                 elif self.idle:
                     self.idle_contador += 1
                     if self.idle_contador > 50:
                         self.idle = False
+
+
+    
+    def colision_jugador(self):
+        if self.rect.colliderect(self.jugador.rect) and self.accion != 5:
+            self.jugador.recibir_daño()
+
 
             
 
@@ -153,8 +161,6 @@ class Rana(pygame.sprite.Sprite):
         self.rect.w = self.image.get_rect().w
         self.rect.h = self.image.get_rect().h
         self.rect.h = self.rect.h - 7
-        if self.accion == 5:
-            self.rect.bottomleft = (self.rect.x , self.y + 30)
 
         #fijarse cuanto tiempo paso
         if pygame.time.get_ticks() - self.actualizar_tiempo > ANIMACION_CD:
@@ -171,6 +177,11 @@ class Rana(pygame.sprite.Sprite):
     
     def actualizar_accion(self, nueva_accion):
         '''Recibe por parametro la accion nueva y si es distinta a la actual, la actualiza si la animacion está completa. 0: idle 1: walk 2: daño 3: ataque 4: lanzar 5: muerte'''
+        if self.accion == 4 and nueva_accion == 2:
+            self.atacando = True
+        elif self.atacando == True:
+            self.atacando = False
+            nueva_accion = 4
         # chequeo si hay una nueva accion y si termino la animacion o la animacion es CORRER necesito interrumpirla.
         if self.accion != nueva_accion and (self.accion_completa or self.accion == 1 or self.accion == 4):
             self.accion = nueva_accion
@@ -178,6 +189,8 @@ class Rana(pygame.sprite.Sprite):
             self.indice_fotograma = 0
             self.accion_completa = False
             self.actualizar_tiempo = pygame.time.get_ticks()
+        
+        
 
     
     def chequear_vida(self):
@@ -187,8 +200,13 @@ class Rana(pygame.sprite.Sprite):
             self.vivo = False
             self.actualizar_accion(5)
         
-    def draw(self, screen):
-        screen.blit(pygame.transform.flip(self.image, self.flip, False), self.rect)
+    def draw(self, screen, screen_scroll):
+        self.rect.x += screen_scroll
+        
+        if self.accion != 5:
+            screen.blit(pygame.transform.flip(self.image, self.flip, False), self.rect)
+        else:
+            screen.blit(pygame.transform.flip(self.image, self.flip, False), (self.rect.x, self.rect.y + 25, self.rect.w, self.rect.h))
 
     def dibujar_hitbox(self, screen):
         pygame.draw.line(screen, COLORES.RED1, self.rect.topleft, self.rect.topright)

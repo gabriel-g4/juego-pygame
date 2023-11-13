@@ -8,7 +8,7 @@ class Mundo:
         self.lista_obstaculos = []
     
     def procesar_datos(self, datos_nivel, lista_tiles, fuente, jugador, grupo_enemigos, grupo_decoracion, grupo_salida):
-        
+
         for y, fila in enumerate(datos_nivel):
             for x, tile in enumerate(fila):
                 if tile > -1:
@@ -30,8 +30,9 @@ class Mundo:
                         salida = Salida(img , (x * TILE_SIZE), (y * TILE_SIZE))
                         grupo_salida.add(salida)
 
-    def dibujar(self, screen):
+    def dibujar(self, screen, screen_scroll):
         for tile in self.lista_obstaculos:
+            tile[1].x += screen_scroll
             #pygame.draw.rect(screen, (0,255,0), tile[1])
             screen.blit(tile[0], tile[1])
 

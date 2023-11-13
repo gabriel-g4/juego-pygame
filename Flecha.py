@@ -17,7 +17,9 @@ class Flecha(pygame.sprite.Sprite):
         self.rect.center = (x , y)
         
 
-    def update(self, enemigo_grupo , grupo_flechas, mundo):
+    def update(self, enemigo_grupo , grupo_flechas, mundo, screen_scroll):
+
+        self.rect.x += screen_scroll
 
         # mover flecha
         self.rect.x += (self.direccion * self.velocidad)
@@ -36,6 +38,7 @@ class Flecha(pygame.sprite.Sprite):
             if pygame.sprite.spritecollide(enemigo, grupo_flechas, False):
                 if enemigo.vivo:
                     enemigo.vida -= 25
+                    enemigo.actualizar_accion(2)
                     print(enemigo.vida)
                     self.kill()
                     

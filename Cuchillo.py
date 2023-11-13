@@ -22,7 +22,9 @@ class Cuchillo(pygame.sprite.Sprite):
         self.rect.center = (x ,y)
 
 
-    def update(self, grupo_enemigos, grupo_cuchillos, mundo):
+    def update(self, grupo_enemigos, grupo_cuchillos, mundo, screen_scroll):
+        self.rect.x += screen_scroll
+
         # mover cuchillo
         self.movimiento()
 
@@ -45,6 +47,7 @@ class Cuchillo(pygame.sprite.Sprite):
             if pygame.sprite.spritecollide(enemigo, grupo_cuchillos, False):
                 if enemigo.vivo:
                     self.kill()
+                    enemigo.actualizar_accion(2)
                     enemigo.vida -= 25
                     print(enemigo.vida)
 
