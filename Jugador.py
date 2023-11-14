@@ -9,12 +9,13 @@ from CONSTANTES import *
 
 
 class Jugador(pygame.sprite.Sprite):
-    def __init__(self, x, y, scale, speed, fuente, cantidad_cuchillos) -> None:
+    def __init__(self, x, y, scale, speed, fuente, cantidad_cuchillos, score) -> None:
         pygame.sprite.Sprite.__init__(self)
         self.vivo = True
-        self.vida = 30
+        self.vida = 3
         self.vida_maxima = self.vida
         self.fuente = fuente
+        self.score = score
 
         self.cantidad_cuchillos = cantidad_cuchillos
         self.speed = speed
@@ -29,6 +30,7 @@ class Jugador(pygame.sprite.Sprite):
         self.accion = 0 # es un indice
         self.accion_completa = False
         self.tiempo_inmunidad = 0
+        self.tiempo_muerte = 0
 
         #cargar imagenes
         lista_nombres_animaciones = ["idle", "walk", "salto", "ataque", "muerte"]
@@ -116,7 +118,7 @@ class Jugador(pygame.sprite.Sprite):
         #scroll pantalla
         screen_scroll = 0
         if (self.rect.right > ANCHO_VENTANA - DISTANCIA_PARED_JUGADOR and fondo_scroll < COLUMNAS * TILE_SIZE - ANCHO_VENTANA)\
-             or (self.rect.left < DISTANCIA_PARED_JUGADOR and fondo_scroll >= 0):
+             or (self.rect.left < DISTANCIA_PARED_JUGADOR and fondo_scroll > 0):
             # si llega al limite de la pantalla, el personaje y la pantalla tienen que moverse hacia atras
             self.rect.x -= dx
             screen_scroll = -dx
@@ -148,7 +150,7 @@ class Jugador(pygame.sprite.Sprite):
     def actualizar_accion(self, nueva_accion):
         '''Recibee por parametro la accion nueva y si es distinta a la actual, la actualiza si la animacion está completa. '''
         # chequeo si hay una nueva accion y si termino la animacion o la animacion es CORRER necesito interrumpirla.
-        if self.accion != nueva_accion and (self.accion_completa or self.accion == 1):
+        if self.accion != nueva_accion and (self.accion_completa or self.accion == 1 or self.accion == 4):
             self.accion = nueva_accion
             #reseteo configuraciones de animacion
             self.indice_fotograma = 0
@@ -166,11 +168,11 @@ class Jugador(pygame.sprite.Sprite):
             if ataque:
                 self.actualizar_accion(3) # 3: ataque
                 if self.accion_completa:
-                    flecha = Flecha((self.rect.centerx + (35 * self.direccion)), (self.rect.centery + 7), self.direccion, flecha_imagen, self.flip)
+                    flecha = Flecha((self.rect.centerx + (35 * self.direccion)), (self.rect.centery + 7), self.direccion, flecha_imagen, self.flip, self)
                     grupo_flechas.add(flecha) 
                     ataque = False
             elif lanzar_cuchillo and self.cantidad_cuchillos > 0:
-                cuchillo = Cuchillo((self.rect.centerx + (35 * self.direccion)), (self.rect.centery + 7), self.direccion)
+                cuchillo = Cuchillo((self.rect.centerx + (35 * self.direccion)), (self.rect.centery + 7), self.direccion, self)
                 grupo_cuchillo.add(cuchillo)
                 lanzar_cuchillo = False
                 self.cantidad_cuchillos -= 1
@@ -181,11 +183,11 @@ class Jugador(pygame.sprite.Sprite):
                 if ataque:
                     self.actualizar_accion(3) # 3: ataque
                     if self.accion_completa:
-                        flecha = Flecha((self.rect.centerx + (35 * self.direccion)), (self.rect.centery + 7), self.direccion, flecha_imagen, self.flip)
+                        flecha = Flecha((self.rect.centerx + (35 * self.direccion)), (self.rect.centery + 7), self.direccion, flecha_imagen, self.flip, self)
                         grupo_flechas.add(flecha)
                         ataque = False
                 elif lanzar_cuchillo and self.cantidad_cuchillos > 0:
-                    cuchillo = Cuchillo((self.rect.centerx + (35 * self.direccion)), (self.rect.centery + 7), self.direccion)
+                    cuchillo = Cuchillo((self.rect.centerx + (35 * self.direccion)), (self.rect.centery + 7), self.direccion, self)
                     grupo_cuchillo.add(cuchillo)
                     lanzar_cuchillo = False
                     self.cantidad_cuchillos -= 1
@@ -196,6 +198,7 @@ class Jugador(pygame.sprite.Sprite):
                 self.actualizar_accion(0) # 0: idle
         else:
             screen_scroll = self.moverse(False, False, mundo, fondo_scroll)
+            self.tiempo_muerte += 1
         
         return screen_scroll, fondo_scroll, texto_cantidad_cuchillos, ataque, lanzar_cuchillo
 
@@ -221,10 +224,12 @@ class Jugador(pygame.sprite.Sprite):
     
     def dibujarse(self, screen):
         '''Blitea el personaje en pantalla en su rect.'''
-        if self.tiempo_inmunidad == 0 or self.tiempo_inmunidad >= 55 and self.tiempo_inmunidad <= 65 or self.tiempo_inmunidad >= 35 and self.tiempo_inmunidad <= 45\
-        or self.tiempo_inmunidad >= 15 and self.tiempo_inmunidad <= 25 or self.tiempo_inmunidad <= 5:
+        if self.vivo:
+            if self.tiempo_inmunidad == 0 or self.tiempo_inmunidad >= 55 and self.tiempo_inmunidad <= 65 or self.tiempo_inmunidad >= 35 and self.tiempo_inmunidad <= 45\
+            or self.tiempo_inmunidad >= 15 and self.tiempo_inmunidad <= 25 or self.tiempo_inmunidad <= 5:
+                screen.blit(pygame.transform.flip(self.imagen, self.flip, False), (self.rect.x , self.rect.y, self.rect.w, self.rect.h))
+        else:
             screen.blit(pygame.transform.flip(self.imagen, self.flip, False), (self.rect.x , self.rect.y, self.rect.w, self.rect.h))
-        
 
 
     

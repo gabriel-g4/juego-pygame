@@ -7,9 +7,9 @@ class Mundo:
     def __init__(self) -> None:
         self.lista_obstaculos = []
     
-    def procesar_datos(self, datos_nivel, lista_tiles, fuente, jugador, grupo_enemigos, grupo_decoracion, grupo_salida):
+    def procesar_datos(self, mapa_nivel, lista_tiles, fuente, jugador, grupo_enemigos, grupo_decoracion, grupo_salida):
 
-        for y, fila in enumerate(datos_nivel):
+        for y, fila in enumerate(mapa_nivel):
             for x, tile in enumerate(fila):
                 if tile > -1:
                     img = lista_tiles[tile]
@@ -27,6 +27,11 @@ class Mundo:
                         rana = Rana(x * TILE_SIZE, y * TILE_SIZE, 2, 2, fuente, jugador)
                         grupo_enemigos.add(rana)
                     elif tile == 38:
+                        decoracion = Decoracion(img , (x * TILE_SIZE), (y * TILE_SIZE))
+                        grupo_decoracion.add(decoracion)
+                        jugador.rect.x = (x * TILE_SIZE)
+                        jugador.rect.y = (y * TILE_SIZE)
+                    elif tile == 39:
                         salida = Salida(img , (x * TILE_SIZE), (y * TILE_SIZE))
                         grupo_salida.add(salida)
 

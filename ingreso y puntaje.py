@@ -22,7 +22,7 @@ while on:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_BACKSPACE:
                 ingreso = ingreso[0:-1]
-            else:
+            elif len(ingreso) < 3:
                 ingreso += event.unicode
     
     screen.fill((127,127,0))

@@ -4,8 +4,9 @@ import COLORES
 from CONSTANTES import *
 
 class Flecha(pygame.sprite.Sprite):
-    def __init__(self, x, y , direccion, flecha_imagen, flip):
+    def __init__(self, x, y , direccion, flecha_imagen, flip, jugador):
         pygame.sprite.Sprite.__init__(self)
+        self.jugador = jugador
         self.direccion = direccion
         self.velocidad = 10
 
@@ -40,6 +41,7 @@ class Flecha(pygame.sprite.Sprite):
                     enemigo.vida -= 25
                     enemigo.actualizar_accion(2)
                     print(enemigo.vida)
+                    self.jugador.score += 100
                     self.kill()
                     
 

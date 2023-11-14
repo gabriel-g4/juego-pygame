@@ -11,3 +11,10 @@ class Salida(pygame.sprite.Sprite):
     def update(self, screen_scroll):
 
         self.rect.x += screen_scroll
+        
+
+    
+    def comprobar_finalizacion(self, jugador):
+        if self.rect.colliderect(jugador.rect):
+            return True
+    

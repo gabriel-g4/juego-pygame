@@ -72,6 +72,10 @@ class Rana(pygame.sprite.Sprite):
             dx = self.speed
             self.flip = False
             self.direccion = 1
+        
+        # matar si cae del mapa
+        if self.rect.top > ALTO_VENTANA:
+            self.kill()
             
         #colision con los tiles en x e y
         self.en_aire = True
@@ -172,6 +176,7 @@ class Rana(pygame.sprite.Sprite):
                 self.accion_completa = True
                 self.indice_fotograma = 0
             else:
+                self.jugador.score += 400
                 self.kill()
             
     
@@ -198,6 +203,7 @@ class Rana(pygame.sprite.Sprite):
             self.vida = 0
             self.speed = 0
             self.vivo = False
+            
             self.actualizar_accion(5)
         
     def draw(self, screen, screen_scroll):
