@@ -6,6 +6,14 @@ from Cuchillo import Cuchillo
 from FUNCIONES import *
 from CONSTANTES import *
 
+pygame.mixer.init()
+
+daño_duenda_efecto = pygame.mixer.Sound(r"SONIDO\daño duenda.wav")
+daño_duenda_efecto.set_volume(0.2)
+
+
+
+
 
 
 class Jugador(pygame.sprite.Sprite):
@@ -205,7 +213,8 @@ class Jugador(pygame.sprite.Sprite):
     
 
     def recibir_daño(self):
-        if self.tiempo_inmunidad <= 0:
+        if self.tiempo_inmunidad <= 0 and self.vida > 0:
+            daño_duenda_efecto.play()
             self.vida -= 1
             self.tiempo_inmunidad = 75
             print(self.vida)
@@ -218,6 +227,7 @@ class Jugador(pygame.sprite.Sprite):
             self.speed = 0
             self.velocidad_y = 5
             self.vivo = False
+            
             self.actualizar_accion(4)
 
 
@@ -239,3 +249,5 @@ class Jugador(pygame.sprite.Sprite):
         pygame.draw.line(screen, COLORES.RED1, self.rect.topleft, self.rect.bottomleft)
         pygame.draw.line(screen, COLORES.RED1, self.rect.bottomleft, self.rect.bottomright)
         pygame.draw.line(screen, COLORES.RED1, self.rect.bottomright, self.rect.topright)
+
+pygame.mixer.quit()

@@ -11,6 +11,7 @@ from Mundo import Mundo
 on = True
 
 pygame.init()
+pygame.mixer.init()
 
 # FRAMERATE
 clock = pygame.time.Clock()
@@ -21,6 +22,22 @@ screen = pygame.display.set_mode([ANCHO_VENTANA, ALTO_VENTANA])
 pygame.display.set_caption("Mi primera duenda")
 icono_ventana = pygame.image.load(r"IMAGENES\PERSONAJES\DUENDA\icono ventana.png").convert_alpha()
 pygame.display.set_icon(icono_ventana)
+
+# AUDIO
+
+pygame.mixer.music.load(r"SONIDO\musica menu.wav")
+pygame.mixer.music.set_volume(0.2)
+pygame.mixer.music.play(-1)
+
+jugar_efecto = pygame.mixer.Sound(r"SONIDO\jugar.wav")
+jugar_efecto.set_volume(0.2)
+
+cuchillo_efecto = pygame.mixer.Sound(r"SONIDO\cuchillo.wav")
+cuchillo_efecto.set_volume(0.5)
+
+muerte_efecto = pygame.mixer.Sound(r"SONIDO\muerte duenda.wav")
+muerte_efecto.set_volume(0.2)
+
 
 # FUENTE Y TEXTOS
 fuente = pygame.font.Font(r"IMAGENES\PROPS\monogram.ttf", 32)
@@ -63,6 +80,7 @@ x_cuchillos = 0
 
 
 # VARIABLES DE JUGADOR
+sonido_muerte = True
 movimiento_izq = False
 movimiento_der = False
 ataque = False
@@ -170,13 +188,16 @@ while on:
                 print(coordenadas_click)
                 if botones_principal == True:
                     if rect_jugar.collidepoint(pos_mouse):
-                        
+                        jugar_efecto.play()
                         iniciar_juego = True
                         bandera_leaderboards = False
                         escribir_nombre = False
                         botones_principal = False
                         
                     elif rect_leaderboards.collidepoint(pos_mouse):
+                        pygame.mixer.music.load(r"SONIDO\musica leaderboard.wav")
+                        pygame.mixer.music.set_volume(0.2)
+                        pygame.mixer.music.play(-1)
                         
                         bandera_leaderboards = True
                         botones_principal = False
@@ -185,7 +206,10 @@ while on:
                         on = False
                 elif botones_leader == True:
                      if rect_atras.collidepoint(pos_mouse):
-                        
+                        pygame.mixer.music.load(r"SONIDO\musica menu.wav")
+                        pygame.mixer.music.set_volume(0.2)
+                        pygame.mixer.music.play(-1)
+                                                
                         iniciar_juego = False
                         bandera_leaderboards = False
                         botones_leader = False
@@ -208,6 +232,7 @@ while on:
                 ataque = True
             if evento.key == pygame.K_l:
                 lanzar_cuchillo = True
+                cuchillo_efecto.play()
 
             # modo debug con P
             if evento.key == pygame.K_p:
@@ -305,7 +330,7 @@ while on:
                 elif len(ingreso) < 3:
                     ingreso += evento.unicode
                 
-                if len(ingreso) >= 1 and evento.key == pygame.K_RETURN:
+                if len(ingreso) == 3 and evento.key == pygame.K_RETURN:
                     insertar(str(ingreso), str(jugador.score))
                     botones_principal = False
                     bandera_leaderboards = True
@@ -437,10 +462,16 @@ while on:
         grupo_proyectiles.draw(screen)
 
         if not jugador.vivo:
+            if sonido_muerte:
+                muerte_efecto.play()
+                sonido_muerte = False
             if jugador.tiempo_muerte > 150:
                 screen.fill((0,0,0))
                 screen.blit(texto_muerte, (200,260))
                 if jugador.tiempo_muerte > 300:
+                    pygame.mixer.music.load(r"SONIDO\musica leaderboard.wav")
+                    pygame.mixer.music.set_volume(0.2)
+                    pygame.mixer.music.play(-1)
                     escribir_nombre = True
                     texto_score = fuente_subtitulos.render(f"SCORE: {str(jugador.score)}", True, COLORES.RED1)
         
