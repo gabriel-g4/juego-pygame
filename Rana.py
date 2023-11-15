@@ -14,9 +14,13 @@ class Rana(pygame.sprite.Sprite):
         self.vivo = True
         self.vida = 100
         self.vida_maxima = self.vida
+        self.x = x
+        self.y = y
 
+        self.velocidad_y = 0
         self.speed = speed
         self.contador_movimiento = 0
+        self.contador_daño = 0
         self.idle = False
         self.idle_contador = 0
         self.direccion = 1 # 1 derecha -1 izquierda
@@ -32,8 +36,7 @@ class Rana(pygame.sprite.Sprite):
         self.lista_animaciones = cargar_imagenes("IMAGENES\PERSONAJES\RANA", ["idle", "walk", "daño","ataque","ataque lanzar", "muerte"] , scale)
         self.image = self.lista_animaciones[self.accion][self.indice_fotograma]
         self.rect = self.image.get_rect()
-        
-        self.rect.bottomleft = (x, y)
+        self.rect.center = (x, y)
         self.rect_valor = fuente.render(str(self.rect), True, COLORES.GRAY)
 
         self.rect_vision = pygame.Rect(0,0,200,self.rect.h)
@@ -47,13 +50,14 @@ class Rana(pygame.sprite.Sprite):
         '''Metodo que llama a otros metodos que necesitan ser actualizados.'''
         self.actualizar_animacion()
         self.chequear_vida()
+        self.colision_jugador()
         if self.accion == 4 and self.accion_completa:
             proyectil = Proyectil(self.rect.centerx + ((10) * self.direccion), self.rect.centery, self.direccion, self.imagen_proyectil, self.flip)
             grupo_proyectiles.add(proyectil)
             self.accion_completa = False
             self.actualizar_accion(0)
     
-    def moverse(self, movimiento_izq: bool, movimiento_der: bool):
+    def moverse(self, movimiento_izq: bool, movimiento_der: bool, mundo):
         #reseteo  variables de movimiento
         dx = 0
         dy = 0
@@ -68,18 +72,41 @@ class Rana(pygame.sprite.Sprite):
             dx = self.speed
             self.flip = False
             self.direccion = 1
-            
-        #colisoin con piso
         
-        if self.rect.bottom + dy > PISO:
-            dy = PISO - self.rect.bottom
+        # matar si cae del mapa
+        if self.rect.top > ALTO_VENTANA:
+            self.kill()
+            
+        #colision con los tiles en x e y
+        self.en_aire = True
+        for tile in mundo.lista_obstaculos:
+            if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.rect.w, self.rect.h):
+                dx = 0
+            if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.rect.w, self.rect.h):
+                if self.velocidad_y < 0: # saltando
+                    self.velocidad_y = 0
+                    dy = tile[1].bottom - self.rect.top
+                
+                elif self.velocidad_y >= 0:
+                    self.velocidad_y = 0
+                    self.en_aire = False
+                    dy = tile[1].top - self.rect.bottom
+        
+        
+        #aplicar gravedad
+        if self.en_aire:
+            self.velocidad_y += GRAVEDAD
+            if self.velocidad_y > 10:
+                self.velocidad_y = 10
 
+        dy += self.velocidad_y
+        
         #mover rectangulo
         self.rect.x += dx
         self.rect.y += dy
 
         
-    def inteligencia(self):
+    def inteligencia(self, mundo):
         if self.vivo:
             # si rect de vision colisiona con jugador, disparar
             if self.rect_vision.colliderect(self.jugador.rect):
@@ -105,13 +132,13 @@ class Rana(pygame.sprite.Sprite):
                         movimiento_rana_der = False
                         movimiento_rana_izq = True
 
-                    self.moverse(movimiento_rana_izq, movimiento_rana_der)
+                    self.moverse(movimiento_rana_izq, movimiento_rana_der, mundo)
                     self.contador_movimiento += 1
 
                     self.rect_vision.center = (self.rect.centerx + 115 * self.direccion, self.rect.centery)
                     
 
-                    if self.contador_movimiento > TILE_SIZE:
+                    if self.contador_movimiento > 40:
                         self.direccion *= -1
                         self.contador_movimiento *= -1
                 elif self.idle:
@@ -119,12 +146,14 @@ class Rana(pygame.sprite.Sprite):
                     if self.idle_contador > 50:
                         self.idle = False
 
+
+    
+    def colision_jugador(self):
+        if self.rect.colliderect(self.jugador.rect) and self.accion != 5:
+            self.jugador.recibir_daño()
+
+
             
-            
-
-
-
-
 
 
     def actualizar_animacion(self):
@@ -135,7 +164,8 @@ class Rana(pygame.sprite.Sprite):
         self.image = self.lista_animaciones[self.accion][self.indice_fotograma]
         self.rect.w = self.image.get_rect().w
         self.rect.h = self.image.get_rect().h
-        self.rect.bottom = (PISO)
+        self.rect.h = self.rect.h - 7
+
         #fijarse cuanto tiempo paso
         if pygame.time.get_ticks() - self.actualizar_tiempo > ANIMACION_CD:
             self.actualizar_tiempo = pygame.time.get_ticks()
@@ -146,11 +176,17 @@ class Rana(pygame.sprite.Sprite):
                 self.accion_completa = True
                 self.indice_fotograma = 0
             else:
+                self.jugador.score += 400
                 self.kill()
             
     
     def actualizar_accion(self, nueva_accion):
         '''Recibe por parametro la accion nueva y si es distinta a la actual, la actualiza si la animacion está completa. 0: idle 1: walk 2: daño 3: ataque 4: lanzar 5: muerte'''
+        if self.accion == 4 and nueva_accion == 2:
+            self.atacando = True
+        elif self.atacando == True:
+            self.atacando = False
+            nueva_accion = 4
         # chequeo si hay una nueva accion y si termino la animacion o la animacion es CORRER necesito interrumpirla.
         if self.accion != nueva_accion and (self.accion_completa or self.accion == 1 or self.accion == 4):
             self.accion = nueva_accion
@@ -158,6 +194,8 @@ class Rana(pygame.sprite.Sprite):
             self.indice_fotograma = 0
             self.accion_completa = False
             self.actualizar_tiempo = pygame.time.get_ticks()
+        
+        
 
     
     def chequear_vida(self):
@@ -165,10 +203,16 @@ class Rana(pygame.sprite.Sprite):
             self.vida = 0
             self.speed = 0
             self.vivo = False
+            
             self.actualizar_accion(5)
         
-    def draw(self, screen):
-        screen.blit(pygame.transform.flip(self.image, self.flip, False), self.rect)
+    def draw(self, screen, screen_scroll):
+        self.rect.x += screen_scroll
+        
+        if self.accion != 5:
+            screen.blit(pygame.transform.flip(self.image, self.flip, False), self.rect)
+        else:
+            screen.blit(pygame.transform.flip(self.image, self.flip, False), (self.rect.x, self.rect.y + 25, self.rect.w, self.rect.h))
 
     def dibujar_hitbox(self, screen):
         pygame.draw.line(screen, COLORES.RED1, self.rect.topleft, self.rect.topright)

@@ -16,21 +16,26 @@ class Proyectil(pygame.sprite.Sprite):
         self.rect.center = (x , y)
         
 
-    def update(self, jugador , grupo_proyectiles):
+    def update(self, jugador , grupo_proyectiles, screen_scroll, mundo):
+        self.rect.x += screen_scroll
         
-        # mover flecha
+        # mover proyectil
         self.rect.x += (self.direccion * self.velocidad)
 
         # fijarse si salio de pantalla
         if self.rect.left > ANCHO_VENTANA or self.rect.right < 0:
             self.kill()
-    
+
+        
         
         # chequear colisiones
+        
+        for tile in mundo.lista_obstaculos:
+            if tile[1].colliderect(self.rect):
+                self.kill()
         if pygame.sprite.spritecollide(jugador, grupo_proyectiles, False):
             if jugador.vivo:
-                jugador.vida -= 1
-                print(jugador.vida)
+                jugador.recibir_daño()
                 self.kill()
                     
 

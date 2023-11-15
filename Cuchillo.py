@@ -6,8 +6,9 @@ from FUNCIONES import *
 from CONSTANTES import *
 
 class Cuchillo(pygame.sprite.Sprite):
-    def __init__(self, x, y, direccion):
+    def __init__(self, x, y, direccion, jugador):
         pygame.sprite.Sprite.__init__(self)
+        self.jugador = jugador
         self.direccion = direccion
         self.velocidad = 4
         self.velocidad_y = -18
@@ -22,7 +23,9 @@ class Cuchillo(pygame.sprite.Sprite):
         self.rect.center = (x ,y)
 
 
-    def update(self, grupo_enemigos, grupo_cuchillos):
+    def update(self, grupo_enemigos, grupo_cuchillos, mundo, screen_scroll):
+        self.rect.x += screen_scroll
+
         # mover cuchillo
         self.movimiento()
 
@@ -32,16 +35,26 @@ class Cuchillo(pygame.sprite.Sprite):
         # fijarse si salio de pantalla
         if self.rect.left > ANCHO_VENTANA or self.rect.right < 0:
             self.kill()
-        
-        # fijarse si toco el suelo
-        if self.rect.bottom >= PISO:
+
+        # matar si cae del mapa
+        if self.rect.top > ALTO_VENTANA:
             self.kill()
         
+        # fijarse si toco un tile
+
+        # for tile in mundo.lista_obstaculos:
+        #     if tile[1].colliderect(self.rect):
+        #         self.kill()
+        #     if tile[1].colliderect(self.rect):
+        #         self.kill()
+
         # chequear colisiones
         for enemigo in grupo_enemigos:
             if pygame.sprite.spritecollide(enemigo, grupo_cuchillos, False):
                 if enemigo.vivo:
                     self.kill()
+                    self.jugador.score += 100
+                    enemigo.actualizar_accion(2)
                     enemigo.vida -= 25
                     print(enemigo.vida)
 
@@ -58,12 +71,6 @@ class Cuchillo(pygame.sprite.Sprite):
 
         dy += self.velocidad_y
         dx += (self.velocidad * self.direccion)
-
-        #colisoin con piso
-        
-        if self.rect.bottom + dy > PISO:
-            dy = PISO - self.rect.bottom
-            self.en_aire = False
 
         #mover rectangulo
         self.rect.x += dx
