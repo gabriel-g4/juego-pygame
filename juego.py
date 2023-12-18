@@ -2,9 +2,7 @@ import pygame
 import COLORES
 from FUNCIONES import *
 from CONSTANTES import *
-from Fantasma import Fantasma
 from Jugador import Jugador
-from Hongo import Hongo
 from Rana import Rana
 from Mundo import Mundo
 
@@ -360,7 +358,7 @@ while on:
         # dibujar tiles
         mundo.dibujar(screen, screen_scroll)
         screen.blit(icono_duenda, (0,0))
-        screen.blit(texto_coordenadas, (0, 110))
+        #screen.blit(texto_coordenadas, (0, 110))
         screen.blit(barra_vida, (85, -5))
         
         for vida in range(jugador.vida):
