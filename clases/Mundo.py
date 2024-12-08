@@ -1,7 +1,7 @@
-from Rana import Rana
-from CONSTANTES import *
-from Decoracion import Decoracion
-from Salida import Salida
+from .Rana import Rana
+from constantes.CONSTANTES import *
+from clases.Decoracion import Decoracion
+from clases.Salida import Salida
 
 class Mundo:
     def __init__(self) -> None:

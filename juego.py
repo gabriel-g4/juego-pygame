@@ -1,10 +1,10 @@
 import pygame
-import COLORES
-from FUNCIONES import *
-from CONSTANTES import *
-from Jugador import Jugador
-from Rana import Rana
-from Mundo import Mundo
+import constantes.COLORES as COLORES
+from constantes.FUNCIONES import *
+from constantes.CONSTANTES import *
+from clases.Jugador import Jugador
+from clases.Rana import Rana
+from clases.Mundo import Mundo
 
 on = True
 
@@ -18,7 +18,7 @@ FPS = 60
 # VENTANA
 screen = pygame.display.set_mode([ANCHO_VENTANA, ALTO_VENTANA])
 pygame.display.set_caption("Mi primera duenda")
-icono_ventana = pygame.image.load(r"IMAGENES\PERSONAJES\DUENDA\icono ventana.png").convert_alpha()
+icono_ventana = pygame.image.load(r"img\PERSONAJES\DUENDA\icono ventana.png").convert_alpha()
 pygame.display.set_icon(icono_ventana)
 
 # AUDIO
@@ -38,9 +38,9 @@ muerte_efecto.set_volume(0.2)
 
 
 # FUENTE Y TEXTOS
-fuente = pygame.font.Font(r"IMAGENES\PROPS\monogram.ttf", 32)
-fuente_titulo = pygame.font.Font(r"IMAGENES\PROPS\PIXEL-LI.TTF", 100)
-fuente_subtitulos = pygame.font.Font(r"IMAGENES\PROPS\monogram.ttf", 80)
+fuente = pygame.font.Font(r"img\PROPS\monogram.ttf", 32)
+fuente_titulo = pygame.font.Font(r"img\PROPS\PIXEL-LI.TTF", 100)
+fuente_subtitulos = pygame.font.Font(r"img\PROPS\monogram.ttf", 80)
 
 
 texto_titulo = fuente_titulo.render("Ranas asesinaS",True, COLORES.GREENYELLOW)
@@ -87,9 +87,9 @@ lanzar_cuchillo = False
 actualizador = 0
 actualizador_rana = 0
 
-# IMAGENES
+# img
 
-fondo_menu = pygame.image.load(r"IMAGENES\FONDO\fondo azul simple.png").convert_alpha()
+fondo_menu = pygame.image.load(r"img\FONDO\fondo azul simple.png").convert_alpha()
 fondo_menu = pygame.transform.scale_by(fondo_menu, 2.8)
 alpha = 128
 beta = 150
@@ -97,7 +97,7 @@ fondo_menu.fill((255, 255, 255, alpha), None, pygame.BLEND_RGBA_MULT)
 
 lista_fondos = []
 for i in range(1, 7):
-    fondo = pygame.image.load(f"IMAGENES/FONDO/plx-{i}.png").convert_alpha()
+    fondo = pygame.image.load(f"img/FONDO/plx-{i}.png").convert_alpha()
     if i != 6 and i != 5:
         fondo = pygame.transform.scale_by(fondo, 2.5)
     else:
@@ -107,29 +107,29 @@ for i in range(1, 7):
 # GUARDAR TILES EN LISTA
 lista_tiles = []
 for i in range(TILE_TYPES):
-    img = pygame.image.load(f"IMAGENES\\TILES\\{i}.png")
+    img = pygame.image.load(f"img\\TILES\\{i}.png")
     img = pygame.transform.scale(img, (TILE_SIZE, TILE_SIZE))
 
     lista_tiles.append(img)
 
 # IMAGEN FLECHA: la cargo aca para que sea siempre la misma y no cargarla cada vez que se dispara.
-flecha_imagen = pygame.image.load(r"IMAGENES\PROPS\felcha.png").convert_alpha()
+flecha_imagen = pygame.image.load(r"img\PROPS\felcha.png").convert_alpha()
 flecha_imagen = pygame.transform.scale_by(flecha_imagen, 1.6)
 
 # ICONOS
-icono_cuchillo = pygame.image.load(r"IMAGENES\PROPS\cuchillo\2.png").convert_alpha()
+icono_cuchillo = pygame.image.load(r"img\PROPS\cuchillo\2.png").convert_alpha()
 icono_cuchillo = pygame.transform.scale_by(icono_cuchillo, 1.8)
 
-icono_duenda = pygame.image.load(r"IMAGENES\PERSONAJES\DUENDA\icono personaje.png").convert_alpha()
+icono_duenda = pygame.image.load(r"img\PERSONAJES\DUENDA\icono personaje.png").convert_alpha()
 icono_duenda = pygame.transform.scale_by(icono_duenda, 1.5)
 
-icono_corazones = pygame.image.load(r"IMAGENES\PROPS\corazon.png").convert_alpha()
+icono_corazones = pygame.image.load(r"img\PROPS\corazon.png").convert_alpha()
 icono_corazones = pygame.transform.scale_by(icono_corazones, 1.3)
 
-barra_vida = pygame.image.load(r"IMAGENES\PROPS\barra de vida.png").convert_alpha()
+barra_vida = pygame.image.load(r"img\PROPS\barra de vida.png").convert_alpha()
 barra_vida = pygame.transform.scale_by(barra_vida, 0.8)
 
-cuadrado_vida = pygame.image.load(r"IMAGENES\PROPS\cuadrado vida.png").convert_alpha()
+cuadrado_vida = pygame.image.load(r"img\PROPS\cuadrado vida.png").convert_alpha()
 cuadrado_vida = pygame.transform.scale_by(cuadrado_vida, 0.80)
 
 #EVENTOS USUARIO

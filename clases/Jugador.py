@@ -1,10 +1,10 @@
 import os
 import pygame
-import COLORES
-from Flecha import Flecha
-from Cuchillo import Cuchillo
-from FUNCIONES import *
-from CONSTANTES import *
+import constantes.COLORES as COLORES
+from clases.Flecha import Flecha
+from clases.Cuchillo import Cuchillo
+from constantes.FUNCIONES import *
+from constantes.CONSTANTES import *
 
 pygame.mixer.init()
 
@@ -42,7 +42,7 @@ class Jugador(pygame.sprite.Sprite):
 
         #cargar imagenes
         lista_nombres_animaciones = ["idle", "walk", "salto", "ataque", "muerte"]
-        self.lista_animaciones = cargar_imagenes("IMAGENES\PERSONAJES\DUENDA", lista_nombres_animaciones, scale)
+        self.lista_animaciones = cargar_imagenes("img\PERSONAJES\DUENDA", lista_nombres_animaciones, scale)
         self.imagen = self.lista_animaciones[self.accion][self.indice_fotograma]
         self.rect = self.imagen.get_rect()
 

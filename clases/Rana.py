@@ -1,9 +1,9 @@
 import pygame
 import random
-import COLORES
-from CONSTANTES import *
-from FUNCIONES import *
-from Proyectil import Proyectil
+import constantes.COLORES as COLORES
+from constantes.CONSTANTES import *
+from constantes.FUNCIONES import *
+from clases.Proyectil import Proyectil
 
 class Rana(pygame.sprite.Sprite):
     def __init__(self, x, y, scale, speed, fuente, jugador) -> None:
@@ -33,7 +33,7 @@ class Rana(pygame.sprite.Sprite):
         self.accion = 0 # 0: idle 1: walk 2: daño 3: ataque 4: lanzar 5: muerte
         self.accion_completa = False
         self.indice_fotograma = 0
-        self.lista_animaciones = cargar_imagenes("IMAGENES\PERSONAJES\RANA", ["idle", "walk", "daño","ataque","ataque lanzar", "muerte"] , scale)
+        self.lista_animaciones = cargar_imagenes("img\PERSONAJES\RANA", ["idle", "walk", "daño","ataque","ataque lanzar", "muerte"] , scale)
         self.image = self.lista_animaciones[self.accion][self.indice_fotograma]
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
@@ -41,7 +41,7 @@ class Rana(pygame.sprite.Sprite):
 
         self.rect_vision = pygame.Rect(0,0,200,self.rect.h)
 
-        self.imagen_proyectil = pygame.image.load(r"IMAGENES\PROPS\proyectil.png").convert_alpha()
+        self.imagen_proyectil = pygame.image.load(r"img\PROPS\proyectil.png").convert_alpha()
         self.imagen_proyectil = pygame.transform.scale_by(self.imagen_proyectil, 2)
         
 

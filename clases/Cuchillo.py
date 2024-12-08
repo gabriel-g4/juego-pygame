@@ -1,9 +1,8 @@
 import pygame
 import os
-import COLORES
-
-from FUNCIONES import *
-from CONSTANTES import *
+import constantes.COLORES as COLORES
+from constantes.FUNCIONES import *
+from constantes.CONSTANTES import *
 
 class Cuchillo(pygame.sprite.Sprite):
     def __init__(self, x, y, direccion, jugador):
@@ -17,7 +16,7 @@ class Cuchillo(pygame.sprite.Sprite):
         self.indice_fotograma = 0
         
 
-        self.lista_animaciones = cargar_imagenes("IMAGENES\PROPS", ["cuchillo"], 2.5)
+        self.lista_animaciones = cargar_imagenes("img\PROPS", ["cuchillo"], 2.5)
         self.image = self.lista_animaciones[self.accion][self.indice_fotograma]
         self.rect = self.image.get_rect()
         self.rect.center = (x ,y)

@@ -1,5 +1,5 @@
 import pygame
-from CONSTANTES import *
+from constantes.CONSTANTES import *
 
 class Salida(pygame.sprite.Sprite):
     def __init__(self, image, x, y):
